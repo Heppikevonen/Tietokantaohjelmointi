@@ -1,0 +1,62 @@
+/* Kopioi koko seuraava rimpsu luonteja varten */
+
+DELIMITER //
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TitlesByGenre`(IN `genreName` VARCHAR(20), IN `LimitNumber` INT) NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER BEGIN
+
+
+
+SELECT primary_title FROM titles INNER JOIN title_genres
+ON titles.title_id = title_genres.title_id
+WHERE genre LIKE genreName LIMIT LimitNumber;
+
+
+
+END //
+
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TitlesByRating`(IN `Rating` INT, IN `LimitNumber` INT) NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER BEGIN
+
+SELECT primary_title, average_rating
+FROM titles INNER JOIN title_ratings ON titles.title_id = title_ratings.title_id
+WHERE (average_rating >= Rating) AND (average_rating <= (Rating + 1))
+LIMIT LimitNumber;
+
+
+END //
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAliasesByRegion`(IN `regionName` VARCHAR(4), IN `LimitNumber` INT) NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER BEGIN
+
+
+
+SELECT title FROM aliases WHERE (region = regionName) GROUP BY title_id ORDER BY title LIMIT LimitNumber;
+
+
+
+END //
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `BirthAndDeathYears`(IN `Name` VARCHAR(50)) NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER BEGIN
+
+
+
+SELECT name_, birth_year, death_year, birth_year, YEAR(CURDATE()) - birth_year AS age
+FROM names_
+WHERE name_ COLLATE utf8mb4_general_ci = Name
+LIMIT 10;
+
+
+
+END //
+
+CREATE PROCEDURE `ActorsByRole`(IN `Role` VARCHAR(50), IN `LimitNumber` INT) NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER BEGIN
+
+SELECT name_, role_
+FROM names_
+INNER JOIN had_role ON names_.name_id = had_role.name_id
+WHERE role_ COLLATE utf8mb4_general_ci LIKE Role
+GROUP BY name_
+LIMIT LimitNumber;
+
+END //
+
+DELIMITER ;
